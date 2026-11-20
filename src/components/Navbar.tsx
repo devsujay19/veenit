@@ -26,10 +26,15 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close menu on route change
   useEffect(() => {
-    setMenuOpen(false);
-  }, [pathname]);
+    const handleResize = () => {
+      if (window.innerWidth > 900) {
+        setMenuOpen(false);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Lock body scroll when menu is open
   useEffect(() => {
@@ -62,7 +67,7 @@ export default function Navbar() {
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="fixed top-0 left-0 right-0 z-50 transition-all duration-500"
+        className="navbar-header"
         style={{
           backgroundColor: scrolled
             ? "rgba(11, 11, 13, 0.95)"
@@ -74,52 +79,18 @@ export default function Navbar() {
           WebkitBackdropFilter: scrolled ? "blur(16px)" : "none",
         }}
       >
-        <div
-          style={{
-            maxWidth: "1280px",
-            margin: "0 auto",
-            padding: "0 32px",
-            height: "72px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
+        <div className="navbar-inner">
             {/* Wordmark */}
             <Link
               href="/"
-              style={{
-                textDecoration: "none",
-                display: "flex",
-                flexDirection: "column",
-                gap: "1px",
-              }}
+              className="navbar-brand"
+              onClick={() => setMenuOpen(false)}
               aria-label="Veenit Deshmukh — Home"
             >
-              <span
-                style={{
-                  fontFamily: "'Cormorant Garamond', Georgia, serif",
-                  fontSize: "1.125rem",
-                  fontWeight: 600,
-                  letterSpacing: "0.08em",
-                  color: "#F5F2EC",
-                  lineHeight: 1.2,
-                  textTransform: "uppercase",
-                }}
-              >
+              <span className="navbar-brand-name">
                 Veenit Deshmukh
               </span>
-              <span
-                style={{
-                  fontFamily: "'Inter', system-ui, sans-serif",
-                  fontSize: "0.6rem",
-                  fontWeight: 400,
-                  letterSpacing: "0.22em",
-                  color: "#C5A46D",
-                  textTransform: "uppercase",
-                  lineHeight: 1,
-                }}
-              >
+              <span className="navbar-brand-subtitle">
                 Trader &amp; Market Guide
               </span>
             </Link>
@@ -127,91 +98,66 @@ export default function Navbar() {
             {/* Desktop nav */}
             <nav
               aria-label="Main navigation"
-              className="hidden md:flex items-center"
-              style={{ gap: "36px" }}
+              className="navbar-desktop"
             >
-              {navLinks.map((link) => {
-                const isContact = link.href === "/contact";
-                const isActive =
-                  link.href === pathname ||
-                  (link.href === "/" && pathname === "/");
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => handleAnchorClick(link.href)}
-                    style={{
-                      fontFamily: "'Inter', system-ui, sans-serif",
-                      fontSize: "0.75rem",
-                      fontWeight: 500,
-                      letterSpacing: "0.14em",
-                      textTransform: "uppercase",
-                      textDecoration: "none",
-                      color: isContact
-                        ? "#C5A46D"
-                        : isActive
-                        ? "#F5F2EC"
-                        : "#A5A19A",
-                      transition: "color 0.2s ease",
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!isContact) (e.currentTarget as HTMLElement).style.color = "#F5F2EC";
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!isContact) (e.currentTarget as HTMLElement).style.color = isActive ? "#F5F2EC" : "#A5A19A";
-                    }}
-                  >
-                    {link.label}
-                  </Link>
-                );
-              })}
+              <ul>
+                {navLinks.map((link) => {
+                  const isContact = link.href === "/contact";
+                  const isActive =
+                    link.href === pathname ||
+                    (link.href === "/" && pathname === "/");
+                  return (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href}
+                        onClick={() => handleAnchorClick(link.href)}
+                        style={{
+                          color: isContact
+                            ? "#C5A46D"
+                            : isActive
+                            ? "#F5F2EC"
+                            : "#A5A19A",
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isContact) e.currentTarget.style.color = "#F5F2EC";
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isContact) {
+                            e.currentTarget.style.color = isActive ? "#F5F2EC" : "#A5A19A";
+                          }
+                        }}
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
             </nav>
 
-            {/* Hamburger */}
+            {/* Mobile menu toggle */}
             <button
-              className="md:hidden"
+              className="navbar-toggle"
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label={menuOpen ? "Close menu" : "Open menu"}
               aria-expanded={menuOpen}
-              style={{
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                padding: "8px",
-                display: "flex",
-                flexDirection: "column",
-                gap: "5px",
-                width: "32px",
-              }}
+              aria-controls="mobile-navigation"
+              type="button"
             >
             <motion.span
               animate={menuOpen ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }}
               transition={{ duration: 0.3 }}
-              style={{
-                display: "block",
-                height: "1px",
-                background: "#F5F2EC",
-                transformOrigin: "center",
-              }}
+              className="navbar-toggle-line navbar-toggle-line-top"
             />
             <motion.span
               animate={menuOpen ? { opacity: 0, x: -8 } : { opacity: 1, x: 0 }}
               transition={{ duration: 0.3 }}
-              style={{
-                display: "block",
-                height: "1px",
-                background: "#F5F2EC",
-              }}
+              className="navbar-toggle-line navbar-toggle-line-middle"
             />
             <motion.span
               animate={menuOpen ? { rotate: -45, y: -7 } : { rotate: 0, y: 0 }}
               transition={{ duration: 0.3 }}
-              style={{
-                display: "block",
-                height: "1px",
-                background: "#F5F2EC",
-                transformOrigin: "center",
-              }}
+              className="navbar-toggle-line navbar-toggle-line-bottom"
             />
           </button>
         </div>
@@ -226,52 +172,29 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -16 }}
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              zIndex: 40,
-              backgroundColor: "rgba(11, 11, 13, 0.98)",
-              backdropFilter: "blur(20px)",
-              WebkitBackdropFilter: "blur(20px)",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              gap: "0",
-            }}
+            className="mobile-menu-overlay"
           >
-            {navLinks.map((link, i) => (
-              <motion.div
-                key={link.href}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                transition={{ delay: 0.08 * i, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                style={{ width: "100%", textAlign: "center" }}
-              >
-                <Link
-                  href={link.href}
-                  onClick={() => handleAnchorClick(link.href)}
-                  style={{
-                    display: "block",
-                    padding: "20px 24px",
-                    fontFamily: "'Cormorant Garamond', Georgia, serif",
-                    fontSize: "2rem",
-                    fontWeight: 400,
-                    letterSpacing: "0.04em",
-                    color: link.href === "/contact" ? "#C5A46D" : "#F5F2EC",
-                    textDecoration: "none",
-                    borderBottom: "1px solid rgba(255,255,255,0.05)",
-                    transition: "color 0.2s ease",
-                  }}
-                >
-                  {link.label}
-                </Link>
-              </motion.div>
-            ))}
+            <nav id="mobile-navigation" aria-label="Mobile navigation">
+              <ul>
+                {navLinks.map((link, i) => (
+                  <motion.li
+                    key={link.href}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    transition={{ delay: 0.08 * i, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <Link
+                      href={link.href}
+                      onClick={() => handleAnchorClick(link.href)}
+                      className={link.href === "/contact" ? "mobile-menu-link mobile-menu-contact" : "mobile-menu-link"}
+                    >
+                      {link.label}
+                    </Link>
+                  </motion.li>
+                ))}
+              </ul>
+            </nav>
           </motion.div>
         )}
       </AnimatePresence>
